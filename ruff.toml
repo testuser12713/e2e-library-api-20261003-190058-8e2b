@@ -1,0 +1,26 @@
+# Auto-generated ruff config. Adjust when a project needs to be stricter/looser.
+# office-crew-ruff: v3
+src = ["backend", "src", "."]
+target-version = "py313"
+line-length = 100
+
+[lint]
+select = [
+    "E", "W",      # pycodestyle
+    "F",           # pyflakes
+    "I",           # isort
+    "N",           # pep8-naming
+    "UP",          # pyupgrade
+    "B",           # flake8-bugbear (catches likely bugs)
+    "C4",          # comprehensions
+    "SIM",         # simplify (catches anti-patterns)
+    "RUF",         # ruff-specific
+]
+ignore = [
+    "E501",        # line too long — we leave that to the formatter
+    "B008",
+]
+
+[lint.per-file-ignores]
+"**/tests/**" = ["N802", "N803"]
+"**/test_*.py" = ["N802", "N803"]
