@@ -20,7 +20,7 @@ class Book(Base):
     publication_year: Mapped[int] = mapped_column(Integer, nullable=False)
     copies: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    loans: Mapped[list[Loan]] = relationship(back_populates="book")
+    loans: Mapped[list[Loan]] = relationship(back_populates="book", cascade="all, delete-orphan")
 
 
 class Member(Base):
@@ -31,7 +31,7 @@ class Member(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     member_since: Mapped[date] = mapped_column(Date, nullable=False)
 
-    loans: Mapped[list[Loan]] = relationship(back_populates="member")
+    loans: Mapped[list[Loan]] = relationship(back_populates="member", cascade="all, delete-orphan")
 
 
 class Loan(Base):

@@ -190,6 +190,39 @@ def test_delete_book_with_open_loan_returns_409(
     assert response.json()["error"]["code"] == "book_has_open_loans"
 
 
+def test_delete_book_after_all_loans_returned_returns_204(client: TestClient, api_key: str) -> None:
+    book = _create(client, api_key, copies=1)
+
+    member_response = client.post(
+        "/members",
+        json={"name": "Grace", "email": "grace@example.com", "member_since": "2020-01-01"},
+        headers={"X-API-Key": api_key},
+    )
+    assert member_response.status_code == 201, member_response.text
+    member = member_response.json()
+
+    loan_response = client.post(
+        "/loans",
+        json={"book_id": book["id"], "member_id": member["id"]},
+        headers={"X-API-Key": api_key},
+    )
+    assert loan_response.status_code == 201, loan_response.text
+    loan = loan_response.json()
+
+    refused = client.delete(f"/books/{book['id']}", headers={"X-API-Key": api_key})
+    assert refused.status_code == 409
+    assert refused.json()["error"]["code"] == "book_has_open_loans"
+
+    returned = client.post(f"/loans/{loan['id']}/return", headers={"X-API-Key": api_key})
+    assert returned.status_code == 200, returned.text
+
+    deleted = client.delete(f"/books/{book['id']}", headers={"X-API-Key": api_key})
+    assert deleted.status_code == 204
+
+    assert client.get(f"/books/{book['id']}").status_code == 404
+    assert client.get(f"/loans/{loan['id']}").status_code == 404
+
+
 @pytest.mark.parametrize(
     ("method", "path", "json_body"),
     [
